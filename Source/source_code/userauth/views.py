@@ -26,7 +26,10 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 def register(request):
-
+	"""
+	Function for User registration as  Users need to make them identify to 
+	the application before they can post and share content with other users/admin or buy advertisements. 
+    	"""
 	registered = False
 	val = 0
     	if request.method == 'POST':
@@ -57,6 +60,9 @@ def register(request):
                 {'user_form': user_form, 'profile_form': profile_form, 'registered': registered, 'val': val,})
 
 def user_login(request):
+        """functoin for user login as  Users need to login to buy advertisements,
+	see their history and to edit their profile.
+    	"""  	
 
     if request.method == 'POST':
     	if User.objects.filter(email = request.POST['email']).count() ==1:
@@ -87,6 +93,10 @@ def user_logout(request):
 	return HttpResponseRedirect('/userauth/')
 
 def upload(request):
+	"""
+	 Function for Upload where user can only buy advertisment for themselves where admin can buy for any user.
+	 Admin has all the functionality which the user has.
+	"""
         if  request.user.is_superuser:
                 global uploaded
                 uploaded = False
@@ -145,6 +155,10 @@ def upload(request):
 def home(request):
 	return render(request,'userauth/index.html')
 def device_login(request):
+	"""
+	This is login function for the device where the user has to login with device username and password
+	to see the advertisements. 
+	"""
 	if request.method == "POST":
 		username = request.POST['username']
 		password = request.POST['password']
@@ -160,6 +174,9 @@ def device_login(request):
 		return render(request,'userauth/device_login.html', {})
 
 def user_edit(request,pk):
+	"""
+	Function for user to edit their profile.
+	"""
         if UserProfile.objects.filter(user = request.user).count()==1:
                 print 11
 		Edit = 0
@@ -198,6 +215,9 @@ def user_edit(request,pk):
                         user_form = UserForm(instance=user)
                 return render(request, 'userauth/register_edit.html', {'user_form': user_form, 'Edit':Edit})
 def user_history(request):
+	"""
+	User can see user History and admin can see history of any user.
+	"""
 	if  request.user.is_superuser:
         	advertisment = UploadAdvetisement.objects.all().order_by('-uploader')
 		ads = UploadFile.objects.all().order_by('-date')
@@ -219,6 +239,11 @@ def user_history(request):
 
 
 def total_cost(request):
+	"""
+	To calculate the total cost for buying Advertisements 
+	depending upon the number of slots,bundles,time slots
+	user buy for the advertisements.
+	"""
 	if request.method == "POST":
 		p = UploadFileForm(request.POST, request.FILES)
 		# if p.size > settings.MAX_UPLOAD_SIZE :
