@@ -93,7 +93,10 @@ def upload(request):
                 msg = "sending nothing"
                 val = 0
                 if request.method == "POST":
-                        form = UploadForm(request.POST, request.FILES)
+			if request.user.is_superuser:
+                        	form = UploadForm(request.POST, request.FILES)
+			else:
+				form = UploadForm1(request.POST, request.FILES)
                         if form.is_valid():
 							global post
 							post = form.save(commit=False)
@@ -133,57 +136,12 @@ def upload(request):
                         else:
                                 print form.errors
                 else :
-                        form = UploadForm()
+			if request.user.is_superuser:
+                        	form = UploadForm()
+			else:
+				form = UploadForm1()
                 return render(request,'userauth/upload.html', {'form': form , 'uploaded':uploaded ,'msg':msg ,  'val':val,})
-        else:
-                global uploaded
-                uploaded = False
-                msg = "sending nothing"
-                val = 0
-                if request.method == "POST":
-                        form = UploadForm1(request.POST, request.FILES)
-                        if form.is_valid():
-							global post
-							post = form.save(commit=False)
-							ret = checkavailable(post)
-							if ret == invalid_location :
-								return redirect(invalid_location)
-							elif ret == internal_server_error :
-								return redirect(internal_server_error)
-							elif ret == empty_database :
-								return redirect(invalid_empty_database)
-							elif ret == unauthorised_access:
-								return redirect(unauthorised_access)
-							if ret == False :
-									val = 1
-							else:
-									global c
-									val = 2
-									c = cost(post)
-									ret = c
-
-									if ret == invalid_location :
-										return redirect(invalid_location)
-									elif ret == internal_server_error :
-										return redirect(internal_server_error)
-									elif ret == empty_database :
-										return redirect(invalid_empty_database)
-									elif ret == unauthorised_access:
-										return redirect(unauthorised_access)
-										
-									post.amount_paid = c
-									if not request.user.is_superuser:
-											post.uploader = request.user
-									post.no_of_slots = math.ceil((post.no_of_repeats*post.time_of_advertisement)/30.0)
-									p = UploadFileForm()
-									return render(request,'userauth/total_cost.html',{'p': p ,'c':c,})
-
-                        else:
-                                print form.errors
-                else :
-                        form = UploadForm1()
-                return render(request,'userauth/upload.html', {'form': form , 'uploaded':uploaded ,'msg':msg ,  'val':val,})
-
+					
 def home(request):
 	return render(request,'userauth/index.html')
 def device_login(request):

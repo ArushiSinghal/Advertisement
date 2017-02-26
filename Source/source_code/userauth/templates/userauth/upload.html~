@@ -2,46 +2,145 @@
 {% load static %}
       {% block content %}
         {% if user.is_authenticated %}
-        <h1>Upload Advertisement</h1>
         {% if uploaded %}
         <strong>thank you for uploading!</strong>
 	<a href="/userauth/upload">Select for Adding More Advertisements.</a><br />
-        <!--<a href="/userauth/upload">Return to the homepage.</a><br />-->
         {% else %}
-        userauth says: <strong>upload here!</strong><br />
+         <h1 class="page-header">Upload Advertisement</h1>
         <!-- code added by me -->
         <link rel="stylesheet" href="http://openlayers.org/en/v3.18.2/css/ol.css" type="text/css"></link>
         <script src="http://openlayers.org/en/v3.18.2/build/ol.js"></script>
         <link rel="stylesheet" type="text/css" href="{%static 'userauth/css/upload_advertisement/getUserLocation.css' %}"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <div class="row">
 
-        <input type="text" id="address" name="FirstName" value="Enter the address">
-         <button type="button" id="find_address">Find</button> <br>
+<div class="col-md-7">
+  <div class="row">
 
-        <a class="skiplink" href="#map">Go to map</a>
+      <div class="col-md-10">
+          <input type="text" id="address" name="FirstName" placeholder="Enter the address" class=form-control>
+        </div>
+        <div class="col-md-2">
 
-        <div id="map" class="map" tabindex="0" style="height:500px;width:500px"></div>
+         <button type="button" id="find_address" class="btn btn-default">Find</button> <br>
+       </div>
+       </div>
 
-        <button id="zoom-out">Zoom out</button>
-        <button id="zoom-in">Zoom in</button>
 
-        <script src="{%static 'userauth/js/upload_advertisement/getUserLocation.js' %}"></script>
-        <!-- coded added by me ends here -->
+<br/>
+
         <form  method="post" action="/userauth/upload/"
                 enctype="multipart/form-data">
 
             {% csrf_token %}
+  {% if val == 1 %}
+           <div class="alert alert-danger">
+                <strong>These Fields are not Available.</strong>
+            </div>
+	{% endif %}
+  {% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+                {% if user.is_superuser %}
+                <label for="{{ form.uploader.id_for_label }}">Uploader</label>
+                       {{ form.uploader}} <br />
+                 {% endif %}
+                 <div class="row">
+                    <div class="col-md-6">
+
+                <label for="{{ form.time_of_advertisement.id_for_label }}">Time Of Advertisement</label>
+                        {{ form.time_of_advertisement }}
+                      </div>
+                      <div class="col-md-6">
+                        <label for="{{ form.no_of_weeks.id_for_label }}">Number of Weeks:</label>
+                                {{ form.no_of_weeks}}
+                      </div>
+                    </div>
+                    <br />
+                      <div class="row">
+                      <div class="col-md-4">
+
+                <label for="{{ form.no_of_repeats.id_for_label }}">Number of Repeats</label>
+                        {{ form.no_of_repeats}}
+                      </div>
+                      <div class="col-md-4">
+                <label for="{{ form.select_bundles.id_for_label }}">Select Bundles</label>
+                        {{ form.select_bundles}}
+                      </div>
+                      <div class="col-md-4">
+                        <label for="{{ form.no_of_slots.id_for_label }}">Slots</label>
+                        {{ form.no_of_slots}}
+                      </div>
+                    </div></br>
+                      <div class="row">
+                        <div class="col-md-8">
+                          <label for="{{ form.start_week.id_for_label }}">Start Week</label>
+                            {{ form.start_week}}
+
+                      </div>
+<div class="col-md-4">
 
 
-            {{ form.as_p }}
 
-            <input type="submit" name="submit" />
+                                                                      </div>
+                                                                    </div>
+
+<br /><br />
+{{ form.bussinessPoint_longitude }}
+{{ form.bussinessPoint_latitude }}
+            <input type="submit" name="submit" class="btn btn-primary" />
         </form>
 
-		 <button type="button">Check Availablity</button>
-		 <button type="button">Total Cost</button>
-        {% endif %}
-        {% else  %}
-         <p>Your don't have access to this page. To proceed,
-    please login with an account that has access.</p>
-        {% endif %}
+        <br />
+        <b>NOTE:</b> <ul>
+          <li>
+            Time of advertisement is total running time for your advertisement.
+          </li>
+          <li>
+            Each slot is of 30 seconds.You have to pay in terms of number of slots purchased.
+          </li>
+          <li>
+            Advertisement will be live from monday of the week selected by you.
+          </li>
+          <li>
+            Number of bundles will be proportional to the number of devices which will display your advertisement.
+          </li>
+        </ul>
+         {% endif %}
+         {% else  %}
+          <p align="centre">Your don't have access to this page. To proceed,
+     please login with an account that has access.
+   <h4><a href="{% url 'login' %}">LOGIN HERE </a></h4>
+   <h4>New User ? <a href="{% url 'register' %}">Register HERE </a></h4>
+ </p>
+         {% endif %}
+
+</div>
+<div class="col-md-4">
+    <div id="map" class="map" tabindex="0" style="height:500px;width:500px"></div>
+
+    <button id="zoom-out" class="btn btn-default">Zoom out</button>
+    <button id="zoom-in" class="btn btn-default">Zoom in</button>
+</div>
+     </div>
+     <!--script to automatically detect no of slots -->
+          <script src="{%static 'userauth/js/no_slots.js' %}"></script>
+         <script src="{%static 'userauth/js/upload_advertisement/getUserLocation.js' %}"></script>
+
+
+
 {% endblock %}
